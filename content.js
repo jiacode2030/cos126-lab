@@ -12,32 +12,16 @@ const weeks=[
   {n:2,label:'Week 2',name:'Arrays and I/O'},
   {n:3,label:'Week 3',name:'Functions and libraries'},
   {n:4,label:'Week 4',name:'Recursion and performance'},
-  {n:5,label:'Week 5',name:'Midterm',blurb:'Midterm review on Mon, Oct 12, then the midterm on Wed, Oct 14. Fall break is Oct 19–23. Practice on the Exam review page.'},
+  {n:5,label:'Week 5',name:'Midterm review',blurb:'No new topics this week. The Exam review page has practice questions on everything from Weeks 0–4.'},
   {n:6,label:'Week 6',name:'Objects'},
   {n:7,label:'Week 7',name:'Design and algorithms'},
   {n:8,label:'Week 8',name:'Data structures and theory'},
   {n:9,label:'Week 9',name:'Machine learning'},
   {n:9.5,label:'Thanksgiving week',name:'Networks'},
   {n:10,label:'Week 10',name:'The TOY machine'},
-  {n:11,label:'Week 11',name:'Circuits'},
-  {n:12,label:'Reading period',name:'Project and final',blurb:'Optional Atomic review session on Wed, Dec 9. Dean’s Date is Tue, Dec 15.'}
+  {n:11,label:'Week 11',name:'Circuits'}
 ];
 
-const dues=[
-  {week:0,date:'2026-09-13',name:'Hello'},
-  {week:1,date:'2026-09-20',name:'Conditionals and Loops'},
-  {week:2,date:'2026-09-27',name:'Arrays and IO'},
-  {week:3,date:'2026-10-04',name:'Functions'},
-  {week:4,date:'2026-10-11',name:'Recursive Graphics'},
-  {week:5,date:'2026-10-14',name:'Midterm',kind:'Exam'},
-  {week:6,date:'2026-11-01',name:'OOP'},
-  {week:7,date:'2026-11-08',name:'Guitar Hero'},
-  {week:8,date:'2026-11-15',name:'Chat126'},
-  {week:9,date:'2026-11-22',name:'Image Classifier'},
-  {week:10,date:'2026-12-06',name:'Hamming'},
-  {week:12,date:'2026-12-15',name:'Atomic',time:'5pm',kind:'Project due'},
-  {week:12,date:'2026-12-20',name:'Final exam',time:'4:00–7:00 pm',kind:'Exam'}
-];
 
 const modules=[
 
@@ -976,7 +960,7 @@ public static void strange(String f) {
  <p>The <b>perceptron</b> is the simplest classifier. It computes a weighted sum of the features and predicts +1 if the sum is positive, −1 otherwise. When it gets a training example wrong, it adds the example (times its label) to the weights. If the data can be separated by a line (or a plane), it is guaranteed to find a separating one.</p>`,
  keys:[['w · x = Σ wᵢxᵢ','The weighted sum (a dot product)'],['predict: +1 if w · x > 0, else −1','The perceptron\'s decision'],['on a mistake: w ← w + y·x','The update rule (y is the true label, ±1)'],['test set','Data held back to measure real accuracy']],
  demos:[{type:'perceptron'}],
- code:{file:'Predict.java',intro:'The perceptron\'s prediction is a dot product and a sign. (Building the full classifier is the Image Classifier assignment, so it isn\'t here.)',src:
+ code:{file:'Predict.java',intro:'The perceptron\'s prediction is a dot product and a sign. (The full classifier isn\'t here, because building it is graded work in the course.)',src:
 `// predict the label (+1 or -1) of feature vector x, given weights w
 public static int predict(double[] w, double[] x) {
     double sum = 0.0;
@@ -1315,12 +1299,12 @@ const reference=`
 <p class="note" style="margin-top:14px">Program execution starts at address 10. R[0] is always 0. Words are 16 bits; negative numbers use two's complement.</p>`;
 
 window.COS={
-  updated:'October 25, 2026',
-  weeks,dues,modules,reference,
+  updated:'October 27, 2026',
+  weeks,modules,reference,
   examIntro:'Each practice set draws 10 questions at random from the modules the exam covers. Check the course website for the official coverage, format and rules.',
   exams:[
-    {name:'Midterm',when:'Wed, Oct 14',weeks:[0,1,2,3,4],topics:['Data types, conditionals and loops','Arrays and input/output','Functions and libraries','Recursion','Performance and order of growth']},
-    {name:'Final exam',when:'Sun, Dec 20 · 4:00–7:00 pm',weeks:[0,1,2,3,4,6,7,8,9,9.5,10,11],topics:['Everything on the midterm','Using, creating and designing data types','Sorting, searching, stacks and queues','Theory of computing','Machine learning and networks','TOY and circuits']}
+    {name:'Midterm topics',when:'Weeks 0–4',weeks:[0,1,2,3,4],topics:['Data types, conditionals and loops','Arrays and input/output','Functions and libraries','Recursion','Performance and order of growth']},
+    {name:'Final exam topics',when:'All weeks',weeks:[0,1,2,3,4,6,7,8,9,9.5,10,11],topics:['Everything on the midterm','Using, creating and designing data types','Sorting, searching, stacks and queues','Theory of computing','Machine learning and networks','TOY and circuits']}
   ]
 };
 })();

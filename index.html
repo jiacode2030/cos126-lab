@@ -73,7 +73,6 @@ p{margin:0 0 12px}
 .prose li{margin-bottom:6px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0;list-style:none}
 .tag{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);font:600 .72rem/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.tag.due{border-color:#F0CFB2;background:var(--warm-soft);color:#8A430B}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 14.5px/1 var(--f-body);text-decoration:none;cursor:pointer}
@@ -248,9 +247,7 @@ textarea{padding:10px 12px;line-height:1.5;resize:vertical}
 .now ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .now li a{display:flex;flex-direction:column;min-height:44px;justify-content:center;padding:8px 12px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink)}
 .now li a:hover{border-color:var(--accent)}
-.now li a span,.now li.dueitem span{font-size:13px;color:var(--muted)}
-.now li.dueitem{padding:8px 12px;border-radius:10px;background:var(--warm-soft);color:#6E3609}
-.now li.dueitem span{color:#8A430B}
+.now li a span{font-size:13px;color:var(--muted)}
 .weeks{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
 .wk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column}
 .wk.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
@@ -259,7 +256,6 @@ textarea{padding:10px 12px;line-height:1.5;resize:vertical}
 .wk li:last-child a{border-bottom:0}
 .wk li a:hover{color:var(--accent)}
 .wk li a span{font-size:13px;color:var(--muted);white-space:nowrap}
-.wk .wd{margin-top:auto;font-size:13.5px;color:#8A430B;background:var(--warm-soft);border-radius:8px;padding:6px 10px}
 .ck{width:18px;height:18px;color:var(--good);flex:none}
 
 @media (max-width:900px){
@@ -836,8 +832,7 @@ const weekOf=id=>WEEKS.find(w=>w.n===MODS.find(m=>m.id===id).week);
 function upcoming(){
   const t=today();
   const next=MODS.filter(m=>D(m.date)>=t).sort((a,c)=>D(a.date)-D(c.date));
-  const dues=COS.dues.filter(d=>D(d.date)>=t).sort((a,c)=>D(a.date)-D(c.date));
-  return {mods:next.slice(0,2),due:dues[0]};
+  return {mods:next.slice(0,2)};
 }
 function overview(){
   const up=upcoming();
@@ -853,29 +848,25 @@ function overview(){
       <p>Last updated ${esc(COS.updated)}</p>
       <p>Spotted a mistake or something confusing? <a href="https://github.com/jiacode2030/cos126-lab/issues/new?title=" rel="noopener">Report an issue</a></p></div>
   </div>
-  <div class="now"><h2 style="margin:0 0 12px;font-size:18px">Coming up</h2><ul>
+  <div class="now"><h2 style="margin:0 0 12px;font-size:18px">Next lectures</h2><ul>
     ${up.mods.map(m=>`<li><a href="#${m.id}"><span>${fmt(m.date)} · lecture</span>${esc(m.title)}</a></li>`).join('')}
-    ${up.due?`<li class="dueitem"><span>${fmt(up.due.date)}${up.due.time?' · '+esc(up.due.time):''} · ${esc((up.due.kind||'Assignment due').toLowerCase())}</span><br>${esc(up.due.name)}</li>`:''}
-    ${!up.mods.length&&!up.due?'<li>The semester is over. The modules and exam review stay here for later.</li>':''}
+    ${!up.mods.length?'<li>That was the last lecture. Every module stays here for review.</li>':''}
   </ul><p style="margin:14px 0 0;font-size:14px;color:var(--muted)">Your progress is saved in this browser only.</p></div></div>
 
   <h2>How to use a module</h2>
   <div class="keys"><div class="key"><b>1 · The idea</b>The concept in plain words, before any code.</div><div class="key"><b>2 · Try it</b>Step through code one line at a time, or play with a live demo.</div><div class="key"><b>3 · The code</b>A short program in COS 126 style, with notes on each part.</div><div class="key"><b>4 · Mistakes and quiz</b>The errors students make most, then questions to check yourself.</div></div>
 
   <h2>Modules by week</h2>
-  <div class="weeks">${WEEKS.map(w=>{const ms=MODS.filter(m=>m.week===w.n);const dd=COS.dues.filter(d=>d.week===w.n);
+  <div class="weeks">${WEEKS.map(w=>{const ms=MODS.filter(m=>m.week===w.n);
     return `<div class="wk${w.n===cur?' cur':''}"><p class="eyebrow" style="margin:0">${esc(w.label)}${w.n===cur?' · up next':''}</p><h3 style="margin:2px 0 0">${esc(w.name)}</h3>
-    ${ms.length?`<ul>${ms.map(m=>`<li><a href="#${m.id}">${esc(m.short||m.title)}<span>${done[m.id]?CK:fmt(m.date)}</span></a></li>`).join('')}</ul>`:`<p style="color:var(--muted);font-size:14px;margin:8px 0 10px">${esc(w.blurb||'')}</p>`}
-    ${dd.map(d=>`<p class="wd">${esc(d.kind||'Due')} ${fmt(d.date)}${d.time?' · '+esc(d.time):''}: ${esc(d.name)}</p>`).join('')}</div>`;}).join('')}</div>`;
+    ${ms.length?`<ul>${ms.map(m=>`<li><a href="#${m.id}">${esc(m.short||m.title)}<span>${done[m.id]?CK:fmt(m.date)}</span></a></li>`).join('')}</ul>`:`<p style="color:var(--muted);font-size:14px;margin:8px 0 10px">${esc(w.blurb||'')}</p>`}</div>`;}).join('')}</div>`;
 }
 
 function moduleView(m){
   const idx=MODS.indexOf(m),prev=MODS[idx-1],next=MODS[idx+1],w=WEEKS.find(x=>x.n===m.week);
-  const due=COS.dues.find(d=>d.week===m.week);
   const parts=[['idea','The idea'],['try','Try it'],['code','The code'],['worked',m.worked?m.worked.label||'Worked example':''],['mistakes','Common mistakes'],['quiz','Check yourself']].filter(p=>p[1]&&(p[0]!=='try'||m.demos&&m.demos.length));
   V.innerHTML=`<p class="eyebrow">${esc(w.label)} · ${fmt(m.date)}${m.reading?' · Reading '+esc(m.reading):''}</p>
     <h1>${esc(m.title)}</h1><p class="lede">${m.lede}</p>
-    ${due?`<div class="chips"><span class="tag due">${esc(due.kind||'Assignment due')} ${fmt(due.date)}: ${esc(due.name)}</span></div>`:''}
     <ul class="steps" aria-label="Sections">${parts.map((p,i)=>`<li><button type="button" data-go="s-${p[0]}"><b>${i+1}</b>${p[1]}</button></li>`).join('')}</ul>
     <section class="part" id="s-idea"><div class="idea"><div class="lab">${I.bulb}The idea</div>${m.idea}</div>${m.keys?`<div class="keys">${m.keys.map(k=>`<div class="key"><b>${esc(k[0])}</b>${k[1]}</div>`).join('')}</div>`:''}</section>
     ${m.demos&&m.demos.length?`<section class="part" id="s-try"><h2>Try it</h2>${m.demos.map((d,i)=>`<div class="demo" data-d="${i}"></div>`).join('')}</section>`:''}
