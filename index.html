@@ -228,6 +228,20 @@ textarea{padding:10px 12px;line-height:1.5;resize:vertical}
 .q .why b.no{color:var(--bad)}
 .score{font:600 15px var(--f-body);margin:6px 0 14px}
 
+/* exam notes and exam review sections */
+.notes h3{margin:22px 0 8px}
+.notes h3:first-child{margin-top:0}
+.notes pre.code{margin:12px 0}
+.trap{margin:16px 0 0;padding:10px 14px;border-radius:10px;background:var(--warm-soft);border-left:4px solid var(--warm);color:#5E2E07}
+.trap b{color:#8A430B}
+details{margin:12px 0 0}
+summary{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:500}
+details[open] summary{margin-bottom:6px}
+.vocab{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 18px;margin:0}
+.vocab dt{font-weight:600}
+.vocab dd{margin:0}
+@media (max-width:560px){.vocab{grid-template-columns:1fr;gap:2px}.vocab dd{margin-bottom:8px}}
+
 /* done + prevnext */
 .finish{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
 .btn.isdone{background:var(--good-soft);border-color:#A7D9BA;color:var(--good)}
@@ -308,6 +322,7 @@ textarea{padding:10px 12px;line-height:1.5;resize:vertical}
 </div>
 
 <script src="content.js"></script>
+<script src="examprep.js"></script>
 <script>
 (function(){
 'use strict';
@@ -815,6 +830,8 @@ function buildNav(){
   let h=q?'':`<a href="#overview">Overview</a><a href="#reference">Java reference</a><a href="#exams">Exam review</a>`;let any=false;
   WEEKS.forEach(w=>{const ms=MODS.filter(m=>m.week===w.n&&match(m));if(!ms.length)return;any=true;
     h+=`<p class="grp">${esc(w.label)} · ${esc(w.name)}</p>`+ms.map(m=>`<a href="#${m.id}" data-id="${m.id}">${esc(m.short||m.title)}${done[m.id]?CK:''}</a>`).join('');});
+  const pages=q?(COS.pageSearch||[]).filter(p=>[p.title,...p.keywords].join(' ').toLowerCase().includes(q)):[];
+  if(pages.length){any=true;h+=`<p class="grp">Pages</p>`+pages.map(p=>`<a href="${p.href}">${esc(p.title)}</a>`).join('');}
   if(q&&!any)h='<p class="none">No modules match.</p>';
   $('#nav').innerHTML=h;markNav();
   const n=nDone();$('#rprog').textContent=`${n} of ${MODS.length} modules done`;$('#rbar').style.width=(100*n/MODS.length)+'%';
@@ -864,7 +881,7 @@ function overview(){
 
 function moduleView(m){
   const idx=MODS.indexOf(m),prev=MODS[idx-1],next=MODS[idx+1],w=WEEKS.find(x=>x.n===m.week);
-  const parts=[['idea','The idea'],['try','Try it'],['code','The code'],['worked',m.worked?m.worked.label||'Worked example':''],['mistakes','Common mistakes'],['quiz','Check yourself']].filter(p=>p[1]&&(p[0]!=='try'||m.demos&&m.demos.length));
+  const parts=[['idea','The idea'],['try','Try it'],['code','The code'],['worked',m.worked?m.worked.label||'Worked example':''],['mistakes','Common mistakes'],['notes',m.notes?'Exam notes':''],['quiz','Check yourself']].filter(p=>p[1]&&(p[0]!=='try'||m.demos&&m.demos.length));
   V.innerHTML=`<p class="eyebrow">${esc(w.label)} · ${fmt(m.date)}${m.reading?' · Reading '+esc(m.reading):''}</p>
     <h1>${esc(m.title)}</h1><p class="lede">${m.lede}</p>
     <ul class="steps" aria-label="Sections">${parts.map((p,i)=>`<li><button type="button" data-go="s-${p[0]}"><b>${i+1}</b>${p[1]}</button></li>`).join('')}</ul>
@@ -874,6 +891,7 @@ function moduleView(m){
       ${m.code.notes?`<ul class="callouts">${m.code.notes.map(n=>`<li><b>${esc(n[0])}</b><span>${n[1]}</span></li>`).join('')}</ul>`:''}${m.code.out?`<div class="outbox" style="max-width:560px"><div class="lab">Output</div><pre>${esc(m.code.out)}</pre></div>`:''}</section>
     ${m.worked?`<section class="part" id="s-worked"><h2>${esc(m.worked.label||'Worked example')}</h2><div class="card prose" style="max-width:none">${m.worked.html}</div></section>`:''}
     <section class="part" id="s-mistakes"><h2>Common mistakes</h2><ul class="mist">${m.mistakes.map(x=>`<li>${x}</li>`).join('')}</ul></section>
+    ${m.notes?`<section class="part" id="s-notes"><h2>Exam notes</h2><div class="card prose notes" style="max-width:none">${m.notes}</div></section>`:''}
     <section class="part" id="s-quiz"><h2>Check yourself</h2><div class="qz"></div></section>
     <div class="finish"><button type="button" class="btn ${done[m.id]?'isdone':'primary'}" id="done" aria-pressed="${!!done[m.id]}">${done[m.id]?I.check+'Done':'Mark as done'}</button>${m.more?`<span style="font-size:14px;color:var(--muted)">${m.more}</span>`:''}</div>
     <nav class="pn" aria-label="Previous and next">${prev?`<a href="#${prev.id}"><span>← Previous</span>${esc(prev.title)}</a>`:'<span></span>'}${next?`<a class="nx" href="#${next.id}"><span>Next →</span>${esc(next.title)}</a>`:'<a class="nx" href="#exams"><span>Next →</span>Exam review</a>'}</nav>`;
@@ -891,13 +909,16 @@ function reference(){
   V.innerHTML=`<p class="eyebrow">Reference</p><h1>Java reference</h1><p class="lede">The syntax and library calls COS 126 uses most, on one page.</p>${COS.reference}`;
 }
 function exams(){
-  const pool=(ws)=>MODS.filter(m=>ws.includes(m.week)).flatMap(m=>m.quiz.map(q=>Object.assign({},q,{q:q.q+` <span class="tag" style="margin-left:6px">${esc(m.short||m.title)}</span>`})));
+  const pool=(x)=>MODS.filter(m=>x.trap||x.weeks.includes(m.week)).flatMap(m=>m.quiz.filter(q=>!x.trap||q.trap).map(q=>Object.assign({},q,{q:q.q+` <span class="tag" style="margin-left:6px">${esc(m.short||m.title)}</span>`})));
   const pick=(arr,n)=>{const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,n);};
   V.innerHTML=`<p class="eyebrow">Midterm and final</p><h1>Exam review</h1><p class="lede">${COS.examIntro}</p>
     <div class="grid2">${COS.exams.map((x,i)=>`<div class="card"><p class="eyebrow" style="margin:0">${esc(x.when)}</p><h3>${esc(x.name)}</h3><ul class="prose" style="padding-left:20px;margin:8px 0 14px">${x.topics.map(t=>`<li>${t}</li>`).join('')}</ul>${btn('Practice: 10 questions','primary',`data-x="${i}"`)}</div>`).join('')}</div>
-    <div id="xq"></div>`;
+    <div id="xq"></div>
+    ${(COS.examSections||[]).length?`<h2>Study notes</h2><ul class="steps" aria-label="Study notes">${COS.examSections.map((x,i)=>`<li><button type="button" data-go="${x.id}"><b>${i+1}</b>${esc(x.title)}</button></li>`).join('')}</ul>
+    ${COS.examSections.map(x=>`<section class="part" id="${x.id}"><h2>${esc(x.title)}</h2><div class="card prose notes" style="max-width:none">${x.html}</div></section>`).join('')}`:''}`;
+  $$('pre[data-java]',V).forEach(p=>{p.outerHTML=codeBlock(p.textContent);});
   examPick=i=>{const x=COS.exams[i];const box=$('#xq');
-    box.innerHTML=`<h2>${esc(x.name)}: practice set</h2><div class="qq"></div><div class="row" style="margin-top:8px">${btn('New set','',`data-x="${i}"`)}</div>`;quiz($('.qq',box),pick(pool(x.weeks),10),{score:true});box.scrollIntoView({block:'start'});};
+    box.innerHTML=`<h2>${esc(x.name)}: practice set</h2><div class="qq"></div><div class="row" style="margin-top:8px">${btn('New set','',`data-x="${i}"`)}</div>`;quiz($('.qq',box),pick(pool(x),10),{score:true});box.scrollIntoView({block:'start'});};
 }
 let examPick=null;
 

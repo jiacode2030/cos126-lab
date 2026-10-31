@@ -9,7 +9,8 @@ An interactive study site for COS 126 (Computer Science: An Interdisciplinary Ap
 Plain static files, no build step:
 
 - `index.html` is the page, styles and every demo.
-- `content.js` holds the modules, schedule, due dates, reference page and exam data.
+- `content.js` holds the modules, schedule, reference page and exam data.
+- `examprep.js` adds exam prep on top: an "Exam notes" section and extra quiz questions in 11 modules, the "Exam traps" practice set, and the study notes on the Exam review page (checklist, handwritten-code practice, vocabulary, past exam answers).
 
 Run the checks after editing:
 

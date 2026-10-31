@@ -95,7 +95,23 @@ const server = http.createServer((q, r) => {
   ok(await p.evaluate(() => !!document.querySelector('a[href="/princeton-labs/privacy.html"]') && !!document.querySelector('a[href="/princeton-labs/terms.html"]') && !!document.querySelector('a.more[href="/princeton-labs/"]')), 'privacy, terms and More labs links');
   ok(await p.evaluate(() => !/goatcounter|google-analytics|gtag\(/.test(document.documentElement.outerHTML)), 'no analytics');
   /* search */
-  await p.fill('#ms', 'TOY'); ok((await p.$$eval('#nav a', a => a.map(x => x.textContent.trim()))).join() === 'TOY I,TOY II', 'search finds TOY modules');
+  await p.fill('#ms', 'TOY'); ok((await p.$$eval('#nav a', a => a.map(x => x.textContent.trim()))).join() === 'TOY I,TOY II,Java reference', 'search finds TOY modules and the reference page');
+  for (const [term, want] of [['aliasing', 'Arrays'], ['readInt', 'Input and output'], ['StackOverflowError', 'Recursion'], ['overloading', 'Functions'], ['immutable', 'Using data types'], ['Math.random', 'Conditionals'], ['vocabulary', 'Exam review']]) {
+    await p.fill('#ms', term);
+    ok((await p.$$eval('#nav a', a => a.map(x => x.textContent.trim()))).includes(want), `search "${term}" finds ${want}`);
+  }
+  await p.fill('#ms', '');
+  /* exam notes */
+  const withNotes = await p.evaluate(() => window.COS.modules.filter(m => m.notes).map(m => m.id).join());
+  ok(withNotes === 'hello,types,conditionals,loops,arrays,io,functions,recursion,performance,using-types,creating-types', 'exam notes on 11 modules', withNotes);
+  await p.goto(BASE + '#arrays');
+  ok(await p.isVisible('#s-notes .trap') && await p.isVisible('[data-go="s-notes"]'), 'Arrays shows Exam notes with a trap line and a section button');
+  ok(await p.evaluate(() => window.COS.modules.flatMap(m => m.quiz).filter(q => q.trap).length) === 27, '27 exam-trap questions');
+  await p.goto(BASE + '#exams');
+  ok(JSON.stringify(await p.$$eval('#view section.part h2', h => h.map(x => x.textContent))) === JSON.stringify(['Exam-day checklist', 'Writing code by hand', 'Vocabulary', 'Past exam answers']), 'exam review study-note sections');
+  ok(await p.$$eval('#x-past .tag', t => t.some(x => x.textContent === 'derived') && t.some(x => x.textContent === 'official key')), 'derived and official key labels shown');
+  await p.click('[data-x="2"]'); await p.waitForTimeout(100);
+  ok(await p.$$eval('#xq .q', q => q.length) === 10, 'Exam traps practice set has 10 questions');
   await b.close(); server.close();
   console.log(fails ? `\n${fails} failed` : '\nall checks passed'); process.exit(fails ? 1 : 0);
 })();

@@ -2,7 +2,7 @@
 
 Interactive study site for Princeton COS 126. Part of Princeton Labs (`jiacode2030/princeton-labs`). Served by GitHub Pages from `main` / root.
 
-`index.html` (page, styles, demo engine) and `content.js` (modules and data) are the source, edited directly. No build step. `index.html` must stay a full HTML document (doctype, charset, viewport).
+`index.html` (page, styles, demo engine), `content.js` (modules and data) and `examprep.js` (exam notes, trap questions, Exam review study notes) are the source, edited directly. No build step. `index.html` must stay a full HTML document (doctype, charset, viewport).
 
 ## Rules
 - Princeton Labs only. No AP content or wording and no links to AP Labs.
@@ -11,6 +11,7 @@ Interactive study site for Princeton COS 126. Part of Princeton Labs (`jiacode20
 - Look: the same as the other Princeton Labs sites. Light theme only, IBM Plex Sans / STIX Two Text / IBM Plex Mono, one blue accent `#2457A6`, white cards on `#F4F6F8`. No decorative motion; demos may animate.
 - Modules follow the COS 126 schedule (weeks and due dates in content.js). Don't post solutions to graded assignments (for example, the full Perceptron class for Image Classifier).
 - localStorage keys start with `cos-` (progress in `cos-done`, read by the Princeton Labs landing page). Never use another site's prefix.
+- Past exam answers keep their labels: "official key" (from a posted solution) or "derived" (worked out by Claude, not official).
 - Report links open issues in this repo.
 - Show the owner a screenshot before pushing, and push only when they say "push".
 
